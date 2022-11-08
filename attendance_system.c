@@ -1,511 +1,425 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-
-typedef struct student 
-{
-	char ID[20];
-	char Name[20];
-	char Class[20];
-	int date;
-	char Attandance[20];
+#include<stdbool.h>
+#define maxsize 15
+#define maxnum 1000
+ 
+typedef struct {
+	char Student_ID[maxsize];
+	char Name[maxsize];
+	char Class_Number[maxsize];
+	char Attandance_date[maxsize];
+	char Attandance_Result[maxsize];
 } student;
-
-student Students[500];
-
+ 
+student Students[maxnum];
+ 
 int num = 0;
-
-/*合并printf和scanf的功能*/
-void fs(char a[], char b[])
-{
-	printf("%s：", a);
-	scanf("%s", b);
+char buf[maxsize];
+/*实现每次输入结束最后输入回车退出的功能，更好的实现与用户的交互 */
+void wait_for_Enter() {
+	getchar();
+	getchar();
 }
-
-/*学号唯一*/
-int judge(char* ID)
-{
-	int i;
-	for (i = 0; i < num; i++)
-	{
-		if (strcmp(Students[i].ID, ID) == 0)
-			return 0;
+/*为了实现对日期进行排序，我的想法是对于月份，直接用atoi截取出来转化成月份，对于天数，则需要用以下函数计算*/
+int convert(char str[]) {
+	int i,j,res = 0, cnt = 0;
+	for (i = strlen(str) - 3; i >= 0; i--) {
+		if (str[i] >= '0'&&str[i] <= '9') res *= 10, res += (str[i] - '0');
+		else break;
 	}
-	return 1;
+	return res;//返回天数，也就是一月中的第几天，例如11月5日，返回的就是5;5月23日，返回的就是23
 }
-
-/*添加同学信息*/
-void ADD()
-{
-	char ID[20];
+/*该函数实现的是把student类型变量b的所有信息赋给student类型的变量a*/
+void copy(student *a,student *b) {
+	strcpy(a->Student_ID , b->Student_ID);
+	strcpy(a->Name , b->Name);
+	strcpy(a->Class_Number , b->Class_Number);
+	strcpy(a->Attandance_Result , b->Attandance_Result);
+	strcpy(a->Attandance_date , b->Attandance_date);
+}
+/*此函数的作用是实现对已存在的学生不可再次添加的作用*/
+bool judge(char *ID) {
+	int i;
+	for (i = 0; i < num; i++) {
+		if (strcmp(Students[i].Student_ID, ID) == 0) return false;
+	}
+	return true;
+}
+/*输入函数，为了简化代码*/
+void setInfo(char pinfo[], char desinfo[]) {
+	printf("%s：", pinfo);
+	scanf("%s", desinfo);
+}
+/*输出每个学生的详细信息*/
+void PrintAllInformation() {
+	int i;
+	printf("------------------------------------\n");
+	for (i = 0; i < num; i++)
+		printf("%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result);
+	printf("------------------------------------\n");
+	printf("打印成功！按回车键返回\n");
+	wait_for_Enter();
+}
+/*输出每个学生的部分信息*/
+void PrintPartInformation() {
+	int i;
+	printf("------------------------------------\n");
+	for (i = 0; i < num; i++)
+		printf("%s %s %s\n", Students[i].Name, Students[i].Attandance_date, Students[i].Attandance_Result);
+	printf("------------------------------------\n");
+	printf("打印成功！按回车键返回\n");
+	wait_for_Enter();
+}
+/*该函数实现的是向系统中添加同学*/
+void ADD() {
+	char ID[maxsize];
 	printf("请输入学生的学号：");
 	scanf("%s", ID);
-	if (!judge(ID))
-	{
-		printf("不可重复添加！请按回车键返回\n");
-		getchar();
-		getchar();
+	if (!judge(ID)) {
+		printf("此人已经存在\n");
+		printf("添加完成！请按回车键返回\n");
+		wait_for_Enter();
 		return;
 	}
-	strcpy(Students[num].ID, ID);
-	fs("请输入学生的姓名", Students[num].Name);
-	fs("请输入学生的班级", Students[num].Class);
-	printf("请输入学生的考勤日期:");
-	scanf("%d", &Students[num].date);
-	fs("请输入学生的考勤结果出 勤 √   旷 课 X   事 假 △   病 假 ○   迟 到 +   早 退 –", Students[num].Attandance);
-	printf("添加成功!按回车键返回\n");
-	num++;
-	getchar();
-	getchar();
+	strcpy(Students[num].Student_ID, ID);
+	setInfo("请输入学生的姓名", Students[num].Name);
+	setInfo("请输入学生的班级", Students[num].Class_Number);
+	setInfo("请输入学生的考勤日期", Students[num].Attandance_date);
+	setInfo("请输入学生的考勤结果出 勤 √   旷 课 X   事 假 △   病 假 ○   迟 到 +   早 退 –", Students[num].Attandance_Result);
+	num++;//同学人数加一
+	printf("添加成功！按回车键返回\n");
+	wait_for_Enter();
 }
-
-/*按学号，姓名，考勤日期查找学生*/
-void Search()
-{
-	int i, op, flag = 0, d;
-	char infor[20];
-	printf("[1]按学号查找  [2]按姓名查找  [3]按考勤日期查找\n");
+/*该函数实现的是查找的功能，可以按学号，姓名，考勤日期进行查找*/
+void Find() {
+	int i, op, flag = -1;
+	char information[maxsize];
+	printf("<1>按学号查找  <2>按姓名查找  <3>按考勤日期查找\n");
 	scanf("%d", &op);
-	if (op == 1)
-	{
+	if (op == 1) {
 		printf("请输入该生学号：");
-		scanf("%s", infor);
-		for (i = 0; i < num; i++)
-		{
-			if (strcmp(infor, Students[i].ID) == 0)
-			{
-				printf("%s %s %s %d %s\n\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance);
-				flag = 1;
-			}
-
+		scanf("%s", information);
+		for (i = 0; i < num; i++) {
+			if (strcmp(information, Students[i].Student_ID) == 0) printf("%s %s %s %s %s\n\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), flag = 1;
+ 
 		}
-	}
-	else if (op == 2)
-	{
+	} else if (op == 2) {
 		printf("请输入该生姓名：");
-		scanf("%s", infor);
-		for (i = 0; i < num; i++)
-		{
-			if (strcmp(infor, Students[i].Name) == 0)
-			{
-				printf("%s %s %s %d %s\n\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance);
-				flag = 1;
-			}
+		scanf("%s", information);
+		for (i = 0; i < num; i++) {
+			if (strcmp(information, Students[i].Name) == 0) printf("%s %s %s %s %s\n\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), flag = 1;
 		}
-	}
-	else
-	{
+	} else {
 		printf("请输入考勤日期：");
-		scanf("%d", &d);
-		for (i = 0; i < num; i++)
-		{
-			if (Students[i].date == d)
-			{
-				printf("%s %s %s %d %s\n\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance);
-				flag = 1;
-			}
+		scanf("%s", information);
+		for (i = 0; i < num; i++) {
+			if (strcmp(information, Students[i].Attandance_date) == 0) 	printf("%s %s %s %s %s\n\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), flag = 1;;
 		}
 	}
-	if (flag == 0)
-		printf("不存在此信息！按回车键返回\n");
-	getchar();
-	getchar();
+	if (flag == -1) printf("不存在此信息！\n");
+	printf("查找完成！按回车键返回\n");
+	wait_for_Enter();
 }
-
-/*该按学号，姓名，考勤日期修改信息*/
-void Change()
-{
-	int i, op, j = -1, a, b;
-	char infor[20];
-	printf("[1]按学号修改  [2]按姓名修改  [3]按考勤日期修改\n");
-	scanf("%d", &op);
-	if (op == 1)
-	{
-		fs("请输入该生学号", infor);
-		for (i = 0; i < num; i++)
-			if (strcmp(infor, Students[i].ID) == 0) j = i;
-	}
-	else if (op == 2)
-	{
-		fs("请输入该生姓名", infor);
-		for (i = 0; i < num; i++)
-			if (strcmp(infor, Students[i].Name) == 0) j = i;
-	}
-	else 
-{
-		printf("请输入考勤日期:");
-		scanf("%d", &a);
-		for (i = 0; i < num; i++)
-			if (Students[i].date == a) j = i;
-	}
-	if (j == -1)
-	{
-		printf("不存在要找的信息！按回车键返回\n");
-		getchar();
-		getchar();
+/*该函数实现的是对系统中已经存在的信息进行修改，类似上面的查找，也可以根据不同的信息选择想要修改的信息进行修改*/
+void Change() {
+	int i, j = -1;
+	char op[2], information[maxsize], find[maxsize];
+	printf("<1>按学号修改  <2>按姓名修改  <3>按考勤日期修改\n");
+	scanf("%s", op);
+	if (op[0] == '1') setInfo("请输入该生学号", information);
+	else if (op[0] == '2') setInfo("请输入该生姓名", information);
+	else setInfo("请输入考核日期", information);
+	strcpy(find, information);
+	if(op[0]=='1')
+		for (i = 0; i < num; i++) {
+			if (strcmp(find, Students[i].Student_ID) == 0) j = i;
+		}
+	else if(op[0]=='2')
+		for (i = 0; i < num; i++) {
+			if (strcmp(find, Students[i].Name) == 0) j = i;
+		}
+	else
+		for (i = 0; i < num; i++) {
+			if (strcmp(find, Students[i].Attandance_date) == 0) j = i;
+		}
+	if (j == -1) {
+		printf("不存在要找的信息！\n");
+		printf("修改完成！按回车键返回\n");
+		wait_for_Enter();
 		return;
 	}
-
-	printf("[1]修改学号  [2]修改姓名  [3]修改考勤日期\n");
-	scanf("%d", &op);
-	if (op == 1)
-	{
-		fs("请输入修改后的新学号", infor);
-		strcpy(Students[j].ID, infor);
-	}
-	else if (op == 2)
-	{
-		fs("请输入修改后的新姓名", infor);
-		strcpy(Students[j].Name, infor);
-	}
-	else
-	{
-		printf("请输入修改后的新考勤日期:");
-		scanf("%d", &b);
-		Students[j].date = b;
+	setInfo("<1>修改学号  <2>修改姓名  <3>修改考勤日期", op);
+	if (op[0] == '1') {
+		setInfo("请输入修改后的新学号", information);
+		strcpy(Students[j].Student_ID, information);
+	} else if (op[0] == '2') {
+		setInfo("请输入修改后的新姓名", information);
+		strcpy(Students[j].Name, information);
+	} else {
+		setInfo("请输入修改后的新考核日期", information);
+		strcpy(Students[j].Attandance_date, information);
 	}
 	printf("修改完成！按回车键返回！\n");
-	getchar();
-	getchar();
+	wait_for_Enter();
 }
-
-/*将b学生的信息复制到a学生*/
-void copy(student* a, student* b)
-{
-	strcpy(a->ID, b->ID);
-	strcpy(a->Name, b->Name);
-	strcpy(a->Class, b->Class);
-	strcpy(a->Attandance, b->Attandance);
-	a->date = b->date;
-}
-
-/*删除已经录入的学生信息*/
-void Delete()
-{
-	int i, j, op, flag = 0;
-	char  infor[20];
-	printf("请输入：[1]按学号删除[2]按姓名删除");
-	scanf("%d", &op);
-	if (op == 1)
-	{
-		fs("请输入学号", infor);
-		for (i = 0; i < num; i++)
-		{
-			if (strcmp(Students[i].ID, infor) == 0)
-			{
-
-				for (j = i + 1; j < num; j++)
-				{
+/*该函数实现的是对已经存在于系统种的同学的信息进行删除操作，具体想法是学生人数num--，后面所有人的信息前移一个位置，实现信息的覆盖*/
+void Delete() {
+	int i, j,flag = -1;
+	char op[2],information[maxsize];
+	setInfo("请输入：<1>按学号删除<2>按姓名删除", op);
+	if (op[0] == '1') {
+		setInfo("请输入学号", information);
+		for (i = 0; i < num; i++) {
+			if (strcmp(Students[i].Student_ID, information) == 0) {
+				flag = 1;
+				for (j = i + 1; j < num; j++) {
 					copy(&Students[i], &Students[j]);
-					flag = 1;
+ 
+				}
+			}
+		}
+	} else {
+		setInfo("请输入姓名", information);
+		for (i = 0; i < num; i++) {
+			if (strcmp(Students[i].Name, information) == 0) {
+				flag = 1;
+				for (j = i + 1; j < num; j++) {
+					copy(&Students[i], &Students[j]);
+ 
 				}
 			}
 		}
 	}
-	else
-	{
-		fs("请输入姓名", infor);
-		for (i = 0; i < num; i++)
-		{
-			if (strcmp(Students[i].Name, infor) == 0)
-			{ 	
-flag = 1;
-				for (j = i + 1; j < num; j++)
-					copy(&Students[i], &Students[j]);
-			}
-		}
-	}
-	if (flag == 0)
-	{
-		printf("不存在此信息！按回车键返回\n");
-		getchar();
-		getchar();
-		return;
+	if (flag == -1) {
+		printf("不存在此信息！\n");
+		printf("删除完成！按回车键返回\n");
+		wait_for_Enter();
+		return ;
 	}
 	num--;
-	printf("删除成功！按回车键返回\n");
-	getchar();
-	getchar();
+	printf("不存在此信息！\n");
+	printf("删除完成！按回车键返回\n");
+	wait_for_Enter();
 }
-
-//输出全部信息//
-void Printall()
-{
-	int i;
-	printf("------------------------------------\n");
-	for (i = 0; i < num; i++)
-		printf("%s %s %s %d %s\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance);
-	printf("------------------------------------\n");
-	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
-}
-
-//输出部分信息//
-void Printpart()
-{
-	int i;
-	printf("------------------------------------\n");
-	for (i = 0; i < num; i++)
-		printf("%s %d %s\n", Students[i].Name, Students[i].date, Students[i].Attandance);
-	printf("------------------------------------\n");
-	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
-}
-
-void Print()
-{
+/*此函数实现的是功能5 对系统中已经存在的信息进行输出*/
+void Print() {
 	int op;
-	printf("请选择\n[1]部分打印\n[2]全部打印：");
+	printf("请选择\n<1>部分打印（输出学生姓名和考勤日期和考勤情况）\n<2>全部打印（输出所有学生的所有信息）：");
 	scanf("%d", &op);
-	if (op == 1) Printpart();
-	else Printall();
+	if (op == 1) PrintPartInformation();
+	else PrintAllInformation();
+ 
 }
-
-/*交换学生信息*/
-void exchange(student* a, student* b)
-{
-	char tmp[20];
-	int c;
-	strcpy(tmp, a->ID);
-	strcpy(a->ID, b->ID);
-	strcpy(b->ID, tmp);
-
+/*交换两个变量的所有成员的数值，因为成员都是char数组，所以用到了strcmp函数。此函数主要是为排序进行服务，采用指针进行交换*/
+void exchange(student *a, student *b) {
+	char tmp[maxsize];
+	strcpy(tmp, a->Student_ID);
+	strcpy(a->Student_ID, b->Student_ID);
+	strcpy(b->Student_ID, tmp);
+ 
 	strcpy(tmp, a->Name);
 	strcpy(a->Name, b->Name);
 	strcpy(b->Name, tmp);
-
-	strcpy(tmp, a->Class);
-	strcpy(a->Class, b->Class);
-	strcpy(b->Class, tmp);
-
-	strcpy(tmp, a->Attandance);
-	strcpy(a->Attandance, b->Attandance);
-	strcpy(b->Attandance, tmp);
-
-	c = a->date;
-	a->date = b->date;
-	b->date, c;
+ 
+	strcpy(tmp, a->Class_Number);
+	strcpy(a->Class_Number, b->Class_Number);
+	strcpy(b->Class_Number, tmp);
+ 
+	strcpy(tmp, a->Attandance_Result);
+	strcpy(a->Attandance_Result, b->Attandance_Result);
+	strcpy(b->Attandance_Result, tmp);
+ 
+	strcpy(tmp, a->Attandance_date);
+	strcpy(a->Attandance_date, b->Attandance_date);
+	strcpy(b->Attandance_date, tmp);
 	return;
 }
-
-/*按学号，姓名，考勤日期进行排序*/
-void Order()
-{
+/*实现功能6排序，可以按学号，姓名，考勤日期进行排序，使用的是冒泡排序对所要求的信息进行排序*/
+void Order() {
 	int op, i, j;
-	printf("请输入：[1]按学号从小到大排序 [2]按学生姓名ASCLL码排序 [3]按考勤日期从小到大排序：\n");
+	char tmp[maxsize];
+	printf("请输入：<1>按学号从小到大排序 <2>按学生姓名ASCLL码排序 <3>按考勤日期从小到大排序：\n");
 	scanf("%d", &op);
-	if (op == 1)
-	{
-		for (i = 0; i < num; i++)
-		{
-			for (j = i + 1; j < num; j++)
-			{
-				if (strcmp(Students[i].ID, Students[j].ID) > 0)
+	if (op == 1) {
+		for (i = 0; i < num; i++) {
+			for (j = i+1; j < num; j++) {
+				if (strcmp(Students[i].Student_ID, Students[j].Student_ID) > 0) {
 					exchange(&Students[i], &Students[j]);
+				}
 			}
 		}
-	}
-	else if (op == 2)
-	{
-		for (i = 0; i < num; i++)
-		{
-			for (j = i + 1; j < num; j++)
-			{
-				if (strcmp(Students[i].Name, Students[j].Name) > 0)
+	} else if (op == 2) {
+		for (i = 0; i < num; i++) {
+			for (j = i+1; j < num; j++) {
+				if (strcmp(Students[i].Name, Students[j].Name) > 0) {
 					exchange(&Students[i], &Students[j]);
+				}
 			}
 		}
-	}
-	else {
-		for (i = 0; i < num; i++)
-		{
-			for (j = i + 1; j < num; j++)
-			{
-				if (Students[i].date > Students[j].date)
-					exchange(&Students[i], &Students[j]);
+	} else {
+		int month_1, month_2, day_1, day_2;
+		for (i = 0; i < num; i++) {
+			month_1 = atoi(Students[i].Attandance_date);
+			day_1 = convert(Students[i].Attandance_date);
+			for (j = i+1; j < num; j++) {
+				month_2 = atoi(Students[j].Attandance_date);
+				day_2 = convert(Students[j].Attandance_date);
+				if(month_1>month_2) exchange(&Students[i], &Students[j]);
+				else if(month_1==month_2&&day_1>day_2) exchange(&Students[i], &Students[j]);
 			}
+ 
 		}
 	}
 	printf("排序成功！按回车键返回\n");
-	getchar();
-	getchar();
+	wait_for_Enter();
 }
-/*输出考勤明细表*/
-void Detail()
-{
+/*输出考勤明细表，考勤明细表具体值得是啥样的表，是按我个人的理解，如果我理解有问题，可以再叫我改*/ 
+void Detail_Print() {
 	int i, j;
-	printf("------------------------------------\n");
-	printf("考勤明细表：\n");
-	for (i = 0; i <= 1231; i++)
-	{
-		for (j = 0; j <= num - 1; j++)
-		{
-			if (i == Students[j].date)
-			{
-				printf("%d：\n", Students[j].date);
-				printf("%s %s %s %s\n", Students[j].ID, Students[j].Name, Students[j].Class, Students[j].Attandance);
-			}
+	char tmp[maxsize];
+	int month_1, month_2, day_1, day_2;
+	for (i = 0; i < num; i++) {
+		month_1 = atoi(Students[i].Attandance_date);
+		day_1 = convert(Students[i].Attandance_date);
+		for (j = 0; j < num; j++) {
+			month_2 = atoi(Students[j].Attandance_date);
+			day_2 = convert(Students[j].Attandance_date);
+			if (month_1 < month_2) exchange(&Students[i], &Students[j]);
+			else if (month_1 == month_2 && day_1 < day_2) exchange(&Students[i], &Students[j]);
 		}
 	}
 	printf("------------------------------------\n");
-	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
-}
-
-/*考勤日报表*/
-void Daily()
-{
-	int i, a;
-	printf("输入要查看的日期：\n");
-	scanf("%d", &a);
-	printf("------------------------------------\n");
-	printf("%d的考勤情况：\n", a);
-	for (i = 0; i < num; i++)
-	{
-		if (a == Students[i].date) printf("%s %s %s %s\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].Attandance);
+	printf("考勤明细表：\n");
+	printf("%s：\n", Students[0].Attandance_date);
+	printf("%s %s %s %s\n", Students[0].Student_ID, Students[0].Name, Students[0].Class_Number, Students[0].Attandance_Result);
+	strcmp(tmp, Students[0].Attandance_date);
+	for (i = 1; i < num; i++) {
+		if (strcmp(Students[i].Attandance_date, tmp) != 0) {
+			printf("%s：\n", Students[i].Attandance_date);
+			strcmp(tmp, Students[i].Attandance_date);
+		}
+		printf("%s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_Result);
 	}
 	printf("------------------------------------\n");
 	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
+	wait_for_Enter();
 }
-
-/*考勤异常表*/
-void Informal_Print()
-{
-	int i, j = 0;
+/*考勤日报表*/ 
+void Daily_Print() {
+	int i;
+	char information[maxsize];
+	setInfo("请输入要查看的日期", information);
+	printf("------------------------------------\n");
+	printf("%s的考勤情况：\n", information);
+	for (i = 0; i < num; i++) {
+		if (strcmp(information, Students[i].Attandance_date) == 0) printf("%s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_Result);
+	}
+	printf("------------------------------------\n");
+	printf("打印成功！按回车键返回\n");
+	wait_for_Enter();
+}
+/*考勤异常表，输出所有不是 ‘对勾 ’的人的信息*/ 
+void Informal_Print() {
+	int i, cnt = 0;
 	printf("------------------------------------\n");
 	printf("考勤异常表：\n");
-	for (i = 0; i < num; i++)
-	{
-		if (strcmp(Students[i].Attandance, "√") != 0)
-			printf("%s %s %s %d %s\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance), j++;
+	for (i = 0; i < num; i++) {
+		if (strcmp(Students[i].Attandance_Result, "√") != 0)
+			printf("%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), cnt++;
 	}
-	printf("考勤异常人数：%d人\n", j);
+	printf("考勤异常人数：%d人\n", cnt);
 	printf("------------------------------------\n");
 	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
+	wait_for_Enter();
 }
-/*考勤汇总表*/
-void AllDaily_Print()
-{
-	int i, j = 0, k = 0;
+/*请假异常表，输出所有请假的人的信息*/ 
+void AskForLeave_Print() {
+	int i, cnt = 0;
 	printf("------------------------------------\n");
-	for (i = 0; i < num; i++)
-	{
-		if (strcmp(Students[i].Attandance, "√") == 0)
-			j++;
-		else
-			k++;
+	printf("请假异常表\n");
+	for (i = 0; i < num; i++) {
+		if (strcmp(Students[i].Attandance_Result, "○") == 0 || strcmp(Students[i].Attandance_Result, "○") == 0)
+			printf("%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), cnt++;
 	}
-	printf("出勤人数为:%d\n缺勤人数为:%d\n",j, k);
+	printf("请假人数：%d人\n", cnt);
 	printf("------------------------------------\n");
 	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
+	wait_for_Enter();
 }
-
-/*请假汇总表*/
-void AskForLeave_Print()
-{
-	int i, j = 0;
-	printf("------------------------------------\n");
-	printf("请假汇总表\n");
-	for (i = 0; i < num; i++) 
-{
-		if (strcmp(Students[i].Attandance, "○") == 0 || strcmp(Students[i].Attandance, "△") == 0)
-			printf("%s %s %s %d %s\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance), j++;
-	}
-	printf("请假人数：%d人\n", j);
-	printf("------------------------------------\n");
-	printf("打印成功！按回车键返回\n");
-	getchar();
-	getchar();
-}
-
-/*数据统计*/
-void Statistics()
-{
-	int op;
-	printf("请选择\n[1]考勤明细表\n[2]考勤日报表\n[3]考勤异常表\n[4]考勤汇总表\n[5]请假汇总表\n");
-	scanf("%d", &op);
-	if (op == 1)
-		Detail();
-	else if (op == 2)
-		Daily();
-	else if (op == 3)
+/*事项功能7进行数据统计*/ 
+void Statistics() {
+	char op[2];
+	setInfo("请选择\n<1>考勤明细表\n<2>考勤日报表\n<3>考勤异常表\n<4>请假汇总表",op);
+	if (op[0] == '1') {
+		Detail_Print();
+	} else if (op[0] == '2') {
+		Daily_Print();
+	} else if (op[0] == '3') {
 		Informal_Print();
-	else if (op == 4)
-		AllDaily_Print();
-	else if (op == 5)
+	} else {
 		AskForLeave_Print();
+	}
 }
-
-int main()
-{
+ 
+int main() {
 	int i, a, b = 1;
-	FILE* fp = fopen("Manage.txt", "at+");
-	if (!fp)
-	{
+	FILE *fp= fopen("Manage.txt", "at+");
+	if (!fp) {
 		printf("错误！未能打开文件\n");
 		exit(0);
 	}
-	fscanf(fp, "%d", &num);
+	fscanf(fp, "%d", &num);//读入已经在系统中的学生的个数 
 	printf("当前系统中储存的学生个数：%d人\n", num);
-	for (i = 0; i < num; i++)
-	{
-		fscanf(fp, "%s%s%s%d%s", &Students[i].ID, &Students[i].Name, &Students[i].Class, &Students[i].date, &Students[i].Attandance);
+	for (i = 0; i < num; i++) {//读入系统中学生的信息 
+		fscanf(fp, "%s%s%s%s%s", &Students[i].Student_ID, &Students[i].Name, &Students[i].Class_Number, &Students[i].Attandance_date, &Students[i].Attandance_Result);
 	}
 	fclose(fp);
-	while (b != 0) 
-{
-		printf("--------------------------------------------------------------------------------\n\n");
+	while (b != 0) {
+		printf("==============================================================================\n\n");
 		printf("                          大学生考勤系统\n\n");
-		printf("--------------------------------------------------------------------------------\n\n");
-		printf("[1] 新增学生数据        [2] 查找学生数据             [3]修改学生记录     \n");
-		printf("[4]删除学生记录         [5] 显示学生考勤的数据列表   [6] 对指定数据进行排序 \n");
-		printf("[7]进行数据统计         [8] 退出\n\n");
+		printf("==============================================================================\n\n");
+		printf("<1> 新增学生数据        <2> 查找学生数据             <3>修改学生记录     \n");
+		printf("<4>删除学生记录         <5> 显示学生考勤的数据列表   <6> 对指定数据进行排序 \n");
+		printf("<7>进行数据统计         <8>  quit\n\n");
 		scanf("%d", &a);
-		switch (a) 
-{
-		case 1:
-			ADD();
-			break;
-		case 2:
-			Search();
-			break;
-		case 3:
-			Change();
-			break;
-		case 4:
-			Delete();
-			break;
-		case 5:
-			Print();
-			break;
-		case 6:
-			Order();
-			break;
-		case 7:
-			Statistics();
-			break;
-		case 8:
-			printf("已退出\n");
-			b = 0;
-			break;
-	  }
-		system("cls");//清屏函数 
+		switch (a) {
+			case 1:
+				ADD();
+				break;
+			case 2:
+				Find();
+				break;
+			case 3:
+				Change();
+				break;
+			case 4:
+				Delete();
+				break;
+			case 5:
+				Print();
+				break;
+			case 6:
+				Order();
+				break;
+			case 7:
+				Statistics();
+				break;
+			case 8:
+				printf("已退出\n");
+				b = 0;
+				break;
+		}
+		system("cls");//清屏函数，为了使界面更加美观 
 	}
-	FILE* F = fopen("Manage.txt", "wt");
+	//在最后把信息输入到文件，保留以备下次运行使用  
+	FILE *F=fopen("Manage.txt","wt");//注意这里是wt  只写打开或建立一个文本文件，只允许写数据
 	fprintf(F, "%d\n", num);
-	for (int i = 0; i < num; i++) 
-{
-		fprintf(F, "%s %s %s %d %s\n", Students[i].ID, Students[i].Name, Students[i].Class, Students[i].date, Students[i].Attandance);
+	for (int i = 0; i < num; i++) {
+		fprintf(F, "%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result);
 	}
 	fclose(F);
+	//文件操作结束 
 	return 0;
 }
