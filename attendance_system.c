@@ -11,12 +11,9 @@ typedef struct {
 	char Class_Number[maxsize];
 	char Attandance_date[maxsize];
 	char Attandance_Result[maxsize];
-} student;
- 
-student Students[maxnum];
- 
+} student; 
+student Students[maxnum]; 
 int num = 0;
-char buf[maxsize];
 /*实现每次输入结束最后输入回车退出的功能，更好的实现与用户的交互 */
 void wait_for_Enter() {
 	getchar();
@@ -77,12 +74,11 @@ void ADD() {
 	char ID[maxsize];
 	printf("请输入学生的学号：");
 	scanf("%s", ID);
-	if (!judge(ID)) {
+	if (!judge(ID)) 
 		printf("此人已经存在\n");
 		printf("添加完成！请按回车键返回\n");
 		wait_for_Enter();
 		return;
-	}
 	strcpy(Students[num].Student_ID, ID);
 	setInfo("请输入学生的姓名", Students[num].Name);
 	setInfo("请输入学生的班级", Students[num].Class_Number);
@@ -144,12 +140,11 @@ void Change() {
 		for (i = 0; i < num; i++) {
 			if (strcmp(find, Students[i].Attandance_date) == 0) j = i;
 		}
-	if (j == -1) {
+	if (j == -1)
 		printf("不存在要找的信息！\n");
 		printf("修改完成！按回车键返回\n");
 		wait_for_Enter();
 		return;
-	}
 	setInfo("<1>修改学号  <2>修改姓名  <3>修改考勤日期", op);
 	if (op[0] == '1') {
 		setInfo("请输入修改后的新学号", information);
@@ -334,13 +329,13 @@ void Informal_Print() {
 	printf("打印成功！按回车键返回\n");
 	wait_for_Enter();
 }
-/*请假异常表，输出所有请假的人的信息*/ 
+/*请假汇总表，输出所有请假的人的信息*/ 
 void AskForLeave_Print() {
 	int i, cnt = 0;
 	printf("------------------------------------\n");
-	printf("请假异常表\n");
+	printf("请假汇总表\n");
 	for (i = 0; i < num; i++) {
-		if (strcmp(Students[i].Attandance_Result, "○") == 0 || strcmp(Students[i].Attandance_Result, "○") == 0)
+		if (strcmp(Students[i].Attandance_Result, "○") == 0)
 			printf("%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), cnt++;
 	}
 	printf("请假人数：%d人\n", cnt);
