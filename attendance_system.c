@@ -2,6 +2,8 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include<math.h>
+#include<time.h>
 #define maxsize 15
 #define maxnum 1000
  
@@ -15,12 +17,21 @@ typedef struct {
  
 student Students[maxnum];
  
-int num = 0;
+int num = 0, numbers = 0;
 char buf[maxsize];
 /*实现每次输入结束最后输入回车退出的功能，更好的实现与用户的交互 */
 void wait_for_Enter() {
 	getchar();
 	getchar();
+}
+void getNums(){
+	srand(time(0));
+	int r = rand() % 9000 + 1000;
+	numbers = r;
+	printf("考勤暗号为：%d\n", r);
+	printf("暗号已生成，按回车继续：");
+
+	wait_for_Enter();
 }
 /*为了实现对日期进行排序，我的想法是对于月份，直接用atoi截取出来转化成月份，对于天数，则需要用以下函数计算*/
 int convert(char str[]) {
@@ -79,7 +90,6 @@ void ADD() {
 	scanf("%s", ID);
 	if (!judge(ID)) {
 		printf("此人已经存在\n");
-		printf("添加完成！请按回车键返回\n");
 		wait_for_Enter();
 		return;
 	}
@@ -91,6 +101,40 @@ void ADD() {
 	num++;//同学人数加一
 	printf("添加成功！按回车键返回\n");
 	wait_for_Enter();
+}
+void ADD_s(int nums){
+	char ID[maxsize];
+	char attendance[10] = "出勤";
+	
+	
+		if (nums == numbers)
+		{
+			char ID[maxsize];
+			printf("请输入学号：");
+			scanf("%s", ID);
+			if (!judge(ID)) {
+				printf("已签到\n");
+				wait_for_Enter();
+				return;
+			}
+			strcpy(Students[num].Student_ID, ID);
+			setInfo("请输入学生的姓名", Students[num].Name);
+			setInfo("请输入学生的班级", Students[num].Class_Number);
+			setInfo("请输入学生的考勤日期", Students[num].Attandance_date);
+			// Students[num].Attandance_Result = attendance[];
+			strcpy(Students[num].Attandance_Result, attendance);
+			num++;//同学人数加一
+			printf("添加成功！按回车键返回\n");
+			wait_for_Enter();
+		}
+		else
+		{
+			int a;
+			printf("输入的课堂码错误，请重新输入:\n");
+			scanf("%d", &a);
+			ADD_s(a);
+		}
+		
 }
 /*该函数实现的是查找的功能，可以按学号，姓名，考勤日期进行查找*/
 void Find() {
@@ -118,8 +162,9 @@ void Find() {
 			if (strcmp(information, Students[i].Attandance_date) == 0) 	printf("%s %s %s %s %s\n\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result), flag = 1;;
 		}
 	}
-	if (flag == -1) printf("不存在此信息！\n");
-	printf("查找完成！按回车键返回\n");
+	if (flag == -1) 
+		printf("不存在此信息！\n");
+	printf("按回车键返回\n");
 	wait_for_Enter();
 }
 /*该函数实现的是对系统中已经存在的信息进行修改，类似上面的查找，也可以根据不同的信息选择想要修改的信息进行修改*/
@@ -146,7 +191,7 @@ void Change() {
 		}
 	if (j == -1) {
 		printf("不存在要找的信息！\n");
-		printf("修改完成！按回车键返回\n");
+		printf("按回车键返回\n");
 		wait_for_Enter();
 		return;
 	}
@@ -161,7 +206,7 @@ void Change() {
 		setInfo("请输入修改后的新考核日期", information);
 		strcpy(Students[j].Attandance_date, information);
 	}
-	printf("修改完成！按回车键返回！\n");
+	printf("按回车键返回！\n");
 	wait_for_Enter();
 }
 /*该函数实现的是对已经存在于系统种的同学的信息进行删除操作，具体想法是学生人数num--，后面所有人的信息前移一个位置，实现信息的覆盖*/
@@ -194,13 +239,13 @@ void Delete() {
 	}
 	if (flag == -1) {
 		printf("不存在此信息！\n");
-		printf("删除完成！按回车键返回\n");
+		printf("按回车键返回\n");
 		wait_for_Enter();
 		return ;
 	}
 	num--;
 	printf("不存在此信息！\n");
-	printf("删除完成！按回车键返回\n");
+	printf("按回车键返回\n");
 	wait_for_Enter();
 }
 /*此函数实现的是功能5 对系统中已经存在的信息进行输出*/
@@ -364,62 +409,113 @@ void Statistics() {
 }
  
 int main() {
-	int i, a, b = 1;
+	int i, a, q = 1, t = 1, s = 1, a1, a2, nums;
 	FILE *fp= fopen("Manage.txt", "at+");
 	if (!fp) {
 		printf("错误！未能打开文件\n");
 		exit(0);
 	}
-	fscanf(fp, "%d", &num);//读入已经在系统中的学生的个数 
+	fscanf(fp, "%d", &num);
 	printf("当前系统中储存的学生个数：%d人\n", num);
-	for (i = 0; i < num; i++) {//读入系统中学生的信息 
+	for (i = 0; i < num; i++) {
 		fscanf(fp, "%s%s%s%s%s", &Students[i].Student_ID, &Students[i].Name, &Students[i].Class_Number, &Students[i].Attandance_date, &Students[i].Attandance_Result);
 	}
 	fclose(fp);
-	while (b != 0) {
+	while (q != 0) {
 		printf("==============================================================================\n\n");
 		printf("                          大学生考勤系统\n\n");
 		printf("==============================================================================\n\n");
-		printf("<1> 新增学生数据        <2> 查找学生数据             <3>修改学生记录     \n");
-		printf("<4>删除学生记录         <5> 显示学生考勤的数据列表   <6> 对指定数据进行排序 \n");
-		printf("<7>进行数据统计         <8>  quit\n\n");
+		printf("请选择用户\n");
+		printf("<1> 老师                <2> 学生                    <3> 保存并退出     \n");
 		scanf("%d", &a);
-		switch (a) {
-			case 1:
-				ADD();
-				break;
-			case 2:
-				Find();
-				break;
-			case 3:
-				Change();
-				break;
-			case 4:
-				Delete();
-				break;
-			case 5:
-				Print();
-				break;
-			case 6:
-				Order();
-				break;
-			case 7:
-				Statistics();
-				break;
-			case 8:
-				printf("已退出\n");
-				b = 0;
-				break;
+		switch (a)
+		{	
+		case 1:
+			while (t != 0)
+			{
+				printf("==============================================================================\n\n");
+				printf("                          大学生考勤系统\n\n");
+				printf("==============================================================================\n\n");
+				printf("<1> 新增学生数据        <2> 查找学生数据             <3>修改学生记录     \n");
+				printf("<4>删除学生记录         <5> 显示学生考勤的数据列表   <6> 对指定数据进行排序 \n");
+				printf("<7>进行数据统计         <8> 生成考勤暗号             <9> 退出当前用户\n\n");
+				scanf("%d", &a1);
+				switch (a1) {
+					case 1:
+						ADD();
+						break;
+					case 2:
+						Find();
+						break;
+					case 3:
+						Change();
+						break;
+					case 4:
+						Delete();
+						break;
+					case 5:
+						Print();
+						break;
+					case 6:
+						Order();
+						break;
+					case 7:
+						Statistics();
+						break;
+					case 8:
+						getNums();
+						break;
+					case 9:
+						printf("已退出当前用户\n");
+						t = 0;
+						break;
+				}
+				system("cls");
+				
+			}
+			t = 1;
+			break;
+			
+		case 2:
+			while (s != 0 )
+			{
+				printf("<1> 考勤         <2> 退出当前用户\n\n");
+				scanf("%d", &a2);
+				switch (a2)
+				{
+				case 1:
+					if (numbers == 0)
+					{
+						printf("老师还没有给出考勤暗号：\n");
+					}
+					else
+					{
+						printf("输入考勤暗号:");
+						scanf("%d", &nums);
+						ADD_s(nums);	
+					}	
+					break;
+
+				case 2:
+					printf("已退出当前用户\n");
+					s = 0;
+					break;
+				}
+			}
+			s = 1;
+			break;
+
+		case 3:
+			printf("已保存并退出");
+			q = 0;		
 		}
-		system("cls");//清屏函数，为了使界面更加美观 
 	}
-	//在最后把信息输入到文件，保留以备下次运行使用  
-	FILE *F=fopen("Manage.txt","wt");//注意这里是wt  只写打开或建立一个文本文件，只允许写数据
+	FILE *F=fopen("Manage.txt","wt");
 	fprintf(F, "%d\n", num);
 	for (int i = 0; i < num; i++) {
 		fprintf(F, "%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result);
 	}
 	fclose(F);
-	//文件操作结束 
+
 	return 0;
 }
