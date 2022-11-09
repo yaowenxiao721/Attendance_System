@@ -67,13 +67,13 @@ void copy(student *a,student *b) {
 	strcpy(a->Attandance_date , b->Attandance_date);
 }
 /*此函数的作用是实现对已存在的学生不可再次添加的作用*/
-bool judge(char *ID) {
-	int i;
-	for (i = 0; i < num; i++) {
-		if (strcmp(Students[i].Student_ID, ID) == 0) return false;
-	}
-	return true;
-}
+// bool judge(char *ID) {
+// 	int i;
+// 	for (i = 0; i < num; i++) {
+// 		if (strcmp(Students[i].Student_ID, ID) == 0) return false;
+// 	}
+// 	return true;
+// }
 /*输入函数，为了简化代码*/
 void setInfo(char pinfo[], char desinfo[]) {
 	printf("%s：", pinfo);
