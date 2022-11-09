@@ -104,11 +104,11 @@ void ADD() {
 	char ID[maxsize];
 	printf("请输入学生的学号：");
 	scanf("%s", ID);
-	if (!judge(ID)) {
-		printf("此人已经存在\n");
-		wait_for_Enter();
-		return;
-	}
+	// if (!judge(ID)) {
+	// 	printf("此人已经存在\n");
+	// 	wait_for_Enter();
+	// 	return;
+	// }
 	strcpy(Students[num].Student_ID, ID);
 	setInfo("请输入学生的姓名", Students[num].Name);
 	setInfo("请输入学生的班级", Students[num].Class_Number);
@@ -142,11 +142,11 @@ void ADD_s(int nums){
 			char ID[maxsize];
 			printf("请输入学号：");
 			scanf("%s", ID);
-			if (!judge(ID)) {
-				printf("已签到\n");
-				wait_for_Enter();
-				return;
-			}
+			// if (!judge(ID)) {
+			// 	printf("已签到\n");
+			// 	wait_for_Enter();
+			// 	return;
+			// }
 			Students[num].sec = time((time_t *)NULL);
 			if (Students[num].sec-time_start <= 900)//15分钟
 			{
