@@ -131,6 +131,22 @@ void PrintPartInformation() {
 // 	printf("添加成功！按回车键返回\n");
 // 	wait_for_Enter();
 // }
+void AskForLeave(){
+    char ID[maxsize];
+    char leave[10] = "请假";
+
+    printf("请输入学号：");
+	scanf("%s", ID);
+    strcpy(Students[num].Student_ID, ID);
+	setInfo("请输入学生的姓名", Students[num].Name);
+	setInfo("请输入学生的班级", Students[num].Class_Number);
+	setInfo("请输入学生的考勤日期", Students[num].Attandance_date);
+	strcpy(Students[num].Attandance_Result, leave);
+
+	num++;//同学人数加一
+	printf("按回车键返回\n");
+	wait_for_Enter();
+}
 void add_s(char *result, char *ID){
 	strcpy(Students[num].Student_ID, ID);
 	setInfo("请输入学生的姓名", Students[num].Name);
@@ -549,7 +565,7 @@ int main() {
 				printf("==============================================================================\n\n");
 				printf("                          大学生考勤系统\n\n");
 				printf("==============================================================================\n\n");
-				printf("<1> 考勤                                                 <2> 退出当前用户\n\n");
+				printf("<1> 考勤                      <2> 请假                         <3> 退出当前用户\n\n");
 				scanf("%d", &a2);
 				switch (a2)
 				{
@@ -562,11 +578,12 @@ int main() {
 					{
 						printf("输入考勤暗号:");
 						scanf("%d", &nums);
-						ADD_s(nums);	
-					}	
+						ADD_s(nums);
+					}
 					break;
-
-				case 2:
+                case 2:
+                    AskForLeave();
+				case 3:
 					printf("已退出当前用户\n");
 					s = 0;
 					break;
