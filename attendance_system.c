@@ -132,12 +132,12 @@ void PrintPartInformation() {
 // 	wait_for_Enter();
 // }
 void AskForLeave(){
-    char ID[maxsize];
-    char leave[10] = "请假";
+    	char ID[maxsize];
+    	char leave[10] = "请假";
 
-    printf("请输入学号：");
+     	printf("请输入学号：");
 	scanf("%s", ID);
-    strcpy(Students[num].Student_ID, ID);
+    	strcpy(Students[num].Student_ID, ID);
 	setInfo("请输入学生的姓名", Students[num].Name);
 	setInfo("请输入学生的班级", Students[num].Class_Number);
 	setInfo("请输入学生的考勤日期", Students[num].Attandance_date);
