@@ -323,8 +323,8 @@ void exchange(student *a, student *b) {
 
 	float t;
 	t = a->date;
-	a = b->date;
-	b = t;
+	a->date = b->date;
+	b->date = t;
 	return;
 }
 /*实现功能6排序，可以按学号，姓名，考勤日期进行排序，使用的是冒泡排序对所要求的信息进行排序*/
@@ -463,7 +463,7 @@ int main() {
 	fscanf(fp, "%d", &num);
 	printf("当前系统中储存的学生个数：%d人\n", num);
 	for (i = 0; i < num; i++) {
-		fscanf(fp, "%s%s%s%s%s", &Students[i].Student_ID, &Students[i].Name, &Students[i].Class_Number, &Students[i].Attandance_date, &Students[i].Attandance_Result);
+		fscanf(fp, "%s%s%s%s%f%s", &Students[i].Student_ID, &Students[i].Name, &Students[i].Class_Number, &Students[i].Attandance_date, &Students[i].date, &Students[i].Attandance_Result);
 	}
 	fclose(fp);
 	while (q != 0) {
@@ -560,7 +560,7 @@ int main() {
 	FILE *F=fopen("Manage.txt","wt");
 	fprintf(F, "%d\n", num);
 	for (int i = 0; i < num; i++) {
-		fprintf(F, "%s %s %s %s %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].Attandance_Result);
+		fprintf(F, "%s %s %s %s %.2f %s\n", Students[i].Student_ID, Students[i].Name, Students[i].Class_Number, Students[i].Attandance_date, Students[i].date, Students[i].Attandance_Result);
 	}
 	fclose(F);
 
