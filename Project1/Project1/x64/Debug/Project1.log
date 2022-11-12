@@ -1,0 +1,7 @@
+﻿  as.cpp
+C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\Project1\as.cpp(1124,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\Project1\as.cpp(1130,19): warning C4244: “=”: 从“time_t”转换到“int”，可能丢失数据
+C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\Project1\as.cpp(1188,27): warning C4244: “=”: 从“time_t”转换到“int”，可能丢失数据
+C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\Project1\as.cpp(1173,7): warning C4101: “ID”: 未引用的局部变量
+C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\Project1\as.cpp(1231,11): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+  Project1.vcxproj -> C:\Users\Kevin\Code\C\attendance_system_vs\vs\Project1\x64\Debug\Project1.exe
