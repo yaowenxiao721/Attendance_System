@@ -71,6 +71,7 @@ void copy(student *a,student *b) {
 	strcpy(a->Class_Number , b->Class_Number);
 	strcpy(a->Attandance_Result , b->Attandance_Result);
 	strcpy(a->Attandance_date , b->Attandance_date);
+	a->date = b->date;
 }
 
 /*输入函数，为了简化代码*/
@@ -111,7 +112,7 @@ void AskForLeave(){
 	setInfo("请输入学生的姓名", Students[num].Name);
 	setInfo("请输入学生的班级", Students[num].Class_Number);
 
-	printf("请输入学生的考勤日期(月份、日期):");	
+	printf("请输入学生请假的日期(月、日):");	
 	scanf("%f", &Students[num].date);
 
 	sprintf(Students[num].Attandance_date, "%.2f", Students[num].date);
@@ -142,33 +143,33 @@ void ADD_s(int nums){
 	char late[10] = "迟到";
 	char truancy[10] = "旷课";
 	
-		if (nums == numbers)
+	if (nums == numbers)
+	{
+		char ID[maxsize];
+		printf("请输入学号：");
+		scanf("%s", ID);
+		Students[num].sec = time((time_t *)NULL);
+		if (Students[num].sec-time_start <= 900)//15分钟
 		{
-			char ID[maxsize];
-			printf("请输入学号：");
-			scanf("%s", ID);
-			Students[num].sec = time((time_t *)NULL);
-			if (Students[num].sec-time_start <= 900)//15分钟
-			{
-				add_s(attendance, ID);
-			}
-			else if (Students[num].sec-time_start <= 2700)//45分钟
-			{
-				add_s(late, ID);
-			}
-			else
-			{
-				add_s(truancy, ID);
-			}		
+			add_s(attendance, ID);
+		}
+		else if (Students[num].sec-time_start <= 2700)//45分钟
+		{
+			add_s(late, ID);
 		}
 		else
 		{
-			int a;
-			printf("输入的课堂码错误，请重新输入:\n");
-			scanf("%d", &a);
-			ADD_s(a);
-		}
-		
+			add_s(truancy, ID);
+		}		
+	}
+	else
+	{
+		int a;
+		printf("输入的课堂码错误，请重新输入:\n");
+		scanf("%d", &a);
+		ADD_s(a);
+	}
+	
 }
 
 /*该函数实现的是查找的功能，可以按学号，姓名，考勤日期进行查找*/
@@ -281,8 +282,6 @@ void Delete() {
 		return ;
 	}
 	num--;
-	printf("不存在此信息！\n");
-	printf("按回车键返回\n");
 	wait_for_Enter();
 }
 
@@ -461,7 +460,7 @@ int main() {
 		exit(0);
 	}
 	fscanf(fp, "%d", &num);
-	printf("当前系统中储存的学生个数：%d人\n", num);
+	printf("当前系统中储存的记录个数：%d人\n", num);
 	for (i = 0; i < num; i++) {
 		fscanf(fp, "%s%s%s%s%f%s", &Students[i].Student_ID, &Students[i].Name, &Students[i].Class_Number, &Students[i].Attandance_date, &Students[i].date, &Students[i].Attandance_Result);
 	}
